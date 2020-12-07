@@ -656,6 +656,11 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
                 "species content and its application to analyses of the "
                 "vegetation on Danish commons. I kommission hos E. Munksgaard.")
 
+    naccepted = comptable[comptable.classification == 'accepted'].shape[0]
+    nrejected = comptable[comptable.classification == 'rejected'].shape[0]
+    nignored = comptable[comptable.classification == 'ignored'].shape[0]
+    RepLGR.info("ICA Decomposition summary: {} Accepted, {} Rejected, {} Ignored".format(naccepted, nrejected, nignored))
+
     with open(repname, 'r') as fo:
         report = [line.rstrip() for line in fo.readlines()]
         report = ' '.join(report)
