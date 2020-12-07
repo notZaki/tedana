@@ -203,6 +203,7 @@ def test_integration_three_echo_debug(skip_integration):
     # Test re-running, but use the CLI
     args = (['-d', '/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
              '-e', '14.5', '38.5', '62.5',
+             '--tedpca', 'mdl',
              '--out-dir', out_dir, '--debug', '--verbose'])
     tedana_cli._main(args)
 

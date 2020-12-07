@@ -508,7 +508,7 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
                                                 low_mem=low_mem)
         mmix_orig = decomposition.tedica(dd, n_components, fixed_seed,
                                          maxit, maxrestart)
-
+        RepLGR.info('Number of components identified: {}'.format(n_components))
         if verbose:
             io.filewrite(utils.unmask(dd, mask),
                          op.join(out_dir, 'ts_OC_whitened.nii.gz'), ref_img)
