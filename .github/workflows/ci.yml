@@ -31,4 +31,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest ./tedana/tests/test_integration.py -k test_integration_three_echo
+        pytest ./tedana/tests/test_integration.py -k test_integration_three_echo_debug
