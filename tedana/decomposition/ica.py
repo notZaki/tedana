@@ -51,6 +51,8 @@ def tedica(data, n_components, fixed_seed, maxit=500, maxrestart=10):
     if fixed_seed == -1:
         fixed_seed = np.random.randint(low=1, high=1000)
 
+    RepLGR.info("Starting seed for ICA Decomposition: {}".format(fixed_seed))
+
     for i_attempt in range(maxrestart):
         ica = FastICA(n_components=n_components, algorithm='parallel',
                       fun='logcosh', max_iter=maxit, random_state=fixed_seed)
@@ -76,4 +78,5 @@ def tedica(data, n_components, fixed_seed, maxit=500, maxrestart=10):
 
     mmix = ica.mixing_
     mmix = stats.zscore(mmix, axis=0)
+    RepLGR.info("Final seed for ICA Decomposition: {}".format(fixed_seed))
     return mmix
