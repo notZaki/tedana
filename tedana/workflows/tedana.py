@@ -373,11 +373,10 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
     rep_handler.setFormatter(text_formatter)
     ref_handler = logging.FileHandler(refname)
     ref_handler.setFormatter(text_formatter)
-    if not len(RepLGR.handlers):
-        RepLGR.setLevel(logging.INFO)
-        RepLGR.addHandler(rep_handler)
-        RepLGR.setLevel(logging.INFO)
-        RefLGR.addHandler(ref_handler)
+    RepLGR.setLevel(logging.INFO)
+    RepLGR.addHandler(rep_handler)
+    RepLGR.setLevel(logging.INFO)
+    RefLGR.addHandler(ref_handler)
 
     LGR.info('Using output directory: {}'.format(out_dir))
 
@@ -673,9 +672,8 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
         fo.write(report)
     os.remove(refname)
 
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
-
+    # for handler in logging.root.handlers[:]:
+    #     logging.root.removeHandler(handler)
 
 def _main(argv=None):
     """Tedana entry point"""
