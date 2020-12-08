@@ -32,4 +32,4 @@ jobs:
     - name: Test with pytest
       run: |
         lscpu
-        pytest ./tedana/tests
+        pytest ./tedana/tests/test_integration.py -k test_integration_three_echo_debug_
