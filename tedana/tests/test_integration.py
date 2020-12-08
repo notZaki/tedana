@@ -71,122 +71,8 @@ def download_test_data(osf, outpath):
     t.extractall(outpath)
 
 
-def test_integration_five_echo(skip_integration):
-    """ Integration test of the full tedana workflow using five-echo test data
-    """
 
-    if skip_integration:
-        pytest.skip('Skipping five-echo integration test')
-    out_dir = '/tmp/data/five-echo/TED.five-echo'
-    if os.path.exists(out_dir):
-        shutil.rmtree(out_dir)
-
-    # download data and run the test
-    download_test_data('https://osf.io/9c42e/download',
-                       os.path.dirname(out_dir))
-    prepend = '/tmp/data/five-echo/p06.SBJ01_S09_Task11_e'
-    suffix = '.sm.nii.gz'
-    datalist = [prepend + str(i + 1) + suffix for i in range(5)]
-    echo_times = [15.4, 29.7, 44.0, 58.3, 72.6]
-    tedana_cli.tedana_workflow(
-        data=datalist,
-        tes=echo_times,
-        out_dir=out_dir,
-        tedpca='aic',
-        fittype='curvefit',
-        tedort=True,
-        verbose=True)
-
-    # Just a check on the component table pending a unit test of load_comptable
-    comptable = os.path.join(out_dir, 'ica_decomposition.json')
-    df = io.load_comptable(comptable)
-    assert isinstance(df, pd.DataFrame)
-
-    # Test re-running, but use the CLI
-    out_dir2 = '/tmp/data/five-echo/TED.five-echo-manual'
-    acc_comps = df.loc[df['classification'] == 'accepted'].index.values
-    acc_comps = [str(c) for c in acc_comps]
-    mixing = os.path.join(out_dir, 'ica_mixing.tsv')
-    t2smap = os.path.join(out_dir, 't2sv.nii.gz')
-    args = (['-d'] + datalist + ['-e'] + [str(te) for te in echo_times] +
-            ['--out-dir', out_dir2, '--debug', '--verbose',
-             '--manacc', *acc_comps,
-             '--ctab', comptable, '--mix', mixing, '--t2smap', t2smap])
-    tedana_cli._main(args)
-
-    # compare the generated output files
-    fn = resource_filename('tedana',
-                           'tests/data/nih_five_echo_outputs_verbose.txt')
-    check_integration_outputs(fn, out_dir)
-
-
-def test_integration_four_echo(skip_integration):
-    """ Integration test of the full tedana workflow using four-echo test data
-    """
-
-    if skip_integration:
-        pytest.skip('Skipping four-echo integration test')
-    out_dir = '/tmp/data/four-echo/TED.four-echo'
-    if os.path.exists(out_dir):
-        shutil.rmtree(out_dir)
-
-    # download data and run the test
-    download_test_data('https://osf.io/gnj73/download',
-                       os.path.dirname(out_dir))
-    prepend = '/tmp/data/four-echo/'
-    prepend += 'sub-PILOT_ses-01_task-localizerDetection_run-01_echo-'
-    suffix = '_space-sbref_desc-preproc_bold+orig.HEAD'
-    datalist = [prepend + str(i + 1) + suffix for i in range(4)]
-    tedana_cli.tedana_workflow(
-        data=datalist,
-        tes=[11.8, 28.04, 44.28, 60.52],
-        out_dir=out_dir,
-        tedpca='kundu-stabilize',
-        gscontrol=['gsr', 'mir'],
-        png_cmap='bone',
-        debug=True,
-        verbose=True)
-
-    # compare the generated output files
-    fn = resource_filename('tedana', 'tests/data/fiu_four_echo_outputs.txt')
-    check_integration_outputs(fn, out_dir)
-
-
-def test_integration_three_echo(skip_integration):
-    """ Integration test of the full tedana workflow using three-echo test data
-    """
-
-    if skip_integration:
-        pytest.skip('Skipping three-echo integration test')
-    out_dir = '/tmp/data/three-echo/TED.three-echo'
-    out_dir2 = '/tmp/data/three-echo/TED.three-echo-rerun'
-    if os.path.exists(out_dir):
-        shutil.rmtree(out_dir)
-
-    # download data and run the test
-    download_test_data('https://osf.io/rqhfc/download',
-                       os.path.dirname(out_dir))
-    tedana_cli.tedana_workflow(
-        data='/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
-        tes=[14.5, 38.5, 62.5],
-        out_dir=out_dir,
-        low_mem=True,
-        tedpca='mdl')
-
-    # Test re-running, but use the CLI
-    args = (['-d', '/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
-             '-e', '14.5', '38.5', '62.5',
-             '--out-dir', out_dir2, '--debug', '--verbose',
-             '--ctab', os.path.join(out_dir, 'ica_decomposition.json'),
-             '--mix', os.path.join(out_dir, 'ica_mixing.tsv')])
-    tedana_cli._main(args)
-
-    # compare the generated output files
-    fn = resource_filename('tedana',
-                           'tests/data/cornell_three_echo_outputs.txt')
-    check_integration_outputs(fn, out_dir)
-
-def test_integration_three_echo_debug(skip_integration):
+def test_integration_three_echo_1(skip_integration=False):
     """ Integration test of the full tedana workflow using three-echo test data
     """
 
@@ -209,34 +95,89 @@ def test_integration_three_echo_debug(skip_integration):
 
 
 
-def test_integration_t2smap(skip_integration):
-    """Integration test of the full t2smap workflow using five-echo test data
+def test_integration_three_echo_2(skip_integration=False):
+    """ Integration test of the full tedana workflow using three-echo test data
     """
+
     if skip_integration:
-        pytest.skip('Skipping t2smap integration test')
-    out_dir = '/tmp/data/five-echo/t2smap_five-echo'
+        pytest.skip('Skipping three-echo integration test')
+    out_dir = '/tmp/data/three-echo/TED.three-echo'
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
 
     # download data and run the test
-    download_test_data('https://osf.io/9c42e/download',
+    download_test_data('https://osf.io/rqhfc/download',
                        os.path.dirname(out_dir))
-    prepend = '/tmp/data/five-echo/p06.SBJ01_S09_Task11_e'
-    suffix = '.sm.nii.gz'
-    datalist = [prepend + str(i + 1) + suffix for i in range(5)]
-    echo_times = [15.4, 29.7, 44.0, 58.3, 72.6]
-    args = (['-d'] + datalist + ['-e'] + [str(te) for te in echo_times] +
-            ['--out-dir', out_dir, '--fittype', 'curvefit'])
-    t2smap_cli._main(args)
 
-    # compare the generated output files
-    fname = resource_filename('tedana',
-                              'tests/data/nih_five_echo_outputs_t2smap.txt')
-    # Gets filepaths generated by integration test
-    existing = [os.path.relpath(f, out_dir) for f in
-                glob.glob(os.path.join(out_dir, '**'), recursive=True)[1:]]
+    # Test re-running, but use the CLI
+    args = (['-d', '/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
+             '-e', '14.5', '38.5', '62.5',
+             '--tedpca', 'mdl',
+             '--out-dir', out_dir, '--debug', '--verbose'])
+    tedana_cli._main(args)
 
-    # Compares remaining files with those expected
-    with open(fname, 'r') as f:
-        tocheck = f.read().splitlines()
-    assert sorted(tocheck) == sorted(existing)
+
+def test_integration_three_echo_3(skip_integration=False):
+    """ Integration test of the full tedana workflow using three-echo test data
+    """
+
+    if skip_integration:
+        pytest.skip('Skipping three-echo integration test')
+    out_dir = '/tmp/data/three-echo/TED.three-echo'
+    if os.path.exists(out_dir):
+        shutil.rmtree(out_dir)
+
+    # download data and run the test
+    download_test_data('https://osf.io/rqhfc/download',
+                       os.path.dirname(out_dir))
+
+    # Test re-running, but use the CLI
+    args = (['-d', '/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
+             '-e', '14.5', '38.5', '62.5',
+             '--tedpca', 'mdl',
+             '--out-dir', out_dir, '--debug', '--verbose'])
+    tedana_cli._main(args)
+
+
+def test_integration_three_echo_4(skip_integration=False):
+    """ Integration test of the full tedana workflow using three-echo test data
+    """
+
+    if skip_integration:
+        pytest.skip('Skipping three-echo integration test')
+    out_dir = '/tmp/data/three-echo/TED.three-echo'
+    if os.path.exists(out_dir):
+        shutil.rmtree(out_dir)
+
+    # download data and run the test
+    download_test_data('https://osf.io/rqhfc/download',
+                       os.path.dirname(out_dir))
+
+    # Test re-running, but use the CLI
+    args = (['-d', '/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
+             '-e', '14.5', '38.5', '62.5',
+             '--tedpca', 'mdl',
+             '--out-dir', out_dir, '--debug', '--verbose'])
+    tedana_cli._main(args)
+
+def test_integration_three_echo_5(skip_integration=False):
+    """ Integration test of the full tedana workflow using three-echo test data
+    """
+
+    if skip_integration:
+        pytest.skip('Skipping three-echo integration test')
+    out_dir = '/tmp/data/three-echo/TED.three-echo'
+    if os.path.exists(out_dir):
+        shutil.rmtree(out_dir)
+
+    # download data and run the test
+    download_test_data('https://osf.io/rqhfc/download',
+                       os.path.dirname(out_dir))
+
+    # Test re-running, but use the CLI
+    args = (['-d', '/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
+             '-e', '14.5', '38.5', '62.5',
+             '--tedpca', 'mdl',
+             '--out-dir', out_dir, '--debug', '--verbose'])
+    tedana_cli._main(args)
+
