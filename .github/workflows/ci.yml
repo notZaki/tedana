@@ -10,8 +10,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        python-version: [3.5, 3.6, 3.7, 3.8, 3.9]
+        os: [ubuntu-latest]
+        python-version: [3.7, 3.7, 3.7, 3.7, 3.7]
 
     steps:
     - uses: actions/checkout@v2
@@ -31,4 +31,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
+        lscpu
         pytest ./tedana/tests/test_integration.py -k test_integration_three_echo_debug
