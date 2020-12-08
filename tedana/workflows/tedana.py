@@ -671,7 +671,10 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
     with open(repname, 'w') as fo:
         fo.write(report)
     os.remove(refname)
-
+    for handle in RepLGR.handlers[:]:
+        RepLGR.removeHandler(handle)
+    for handle in RepLGR.handlers[:]:
+        RefLGR.removeHandler(handle)
     # for handler in logging.root.handlers[:]:
     #     logging.root.removeHandler(handler)
 
