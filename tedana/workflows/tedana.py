@@ -22,11 +22,6 @@ import tedana.gscontrol as gsc
 from tedana.stats import computefeats2
 from tedana.workflows.parser_utils import is_valid_file, ContextFilter
 
-LGR = logging.getLogger(__name__)
-RepLGR = logging.getLogger('REPORT')
-RefLGR = logging.getLogger('REFERENCES')
-
-
 def _get_parser():
     """
     Parses command line inputs for tedana
@@ -373,6 +368,9 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
     rep_handler.setFormatter(text_formatter)
     ref_handler = logging.FileHandler(refname)
     ref_handler.setFormatter(text_formatter)
+    LGR = logging.getLogger(__name__)
+    RepLGR = logging.getLogger('REPORT')
+    RefLGR = logging.getLogger('REFERENCES')
     RepLGR.setLevel(logging.INFO)
     RepLGR.addHandler(rep_handler)
     RepLGR.setLevel(logging.INFO)
@@ -670,10 +668,18 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
     report += '\n\nReferences:\n\n' + references
     with open(repname, 'w') as fo:
         fo.write(report)
-    os.remove(refname)
 
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
+    for handle in LGR.handlers[:]:
+        handle.close()
+        LGR.removeHandler(handle)
+    for handle in RepLGR.handlers[:]:
+        handle.close()
+        RepLGR.removeHandler(handle)
+    for handle in RefLGR.handlers[:]:
+        handle.close()
+        RefLGR.removeHandler(handle)
+
+    os.remove(refname)
 
 
 def _main(argv=None):
