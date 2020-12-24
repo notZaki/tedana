@@ -10,6 +10,7 @@ import tarfile
 from io import BytesIO
 from gzip import GzipFile
 from pkg_resources import resource_filename
+from threadpoolctl import threadpool_limits
 
 import pytest
 import requests
@@ -207,54 +208,8 @@ def test_integration_three_echo_debug_cli(skip_integration):
              '-e', '14.5', '38.5', '62.5',
              '--tedpca', 'mdl',
              '--out-dir', out_dir, '--debug', '--verbose'])
-    tedana_cli._main(args)
-
-
-def test_integration_three_echo_debug_workflow_lowmem(skip_integration):
-    """ Integration test of the full tedana workflow using three-echo test data
-    """
-
-    if skip_integration:
-        pytest.skip('Skipping three-echo integration test')
-    out_dir = '/tmp/data/three-echo/TED.three-echo'
-    out_dir2 = '/tmp/data/three-echo/TED.three-echo-rerun'
-    if os.path.exists(out_dir):
-        shutil.rmtree(out_dir)
-
-    # download data and run the test
-    download_test_data('https://osf.io/rqhfc/download',
-                       os.path.dirname(out_dir))
-    tedana_cli.tedana_workflow(
-        data='/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
-        tes=[14.5, 38.5, 62.5],
-        out_dir=out_dir,
-        low_mem=True,
-        debug=True,
-        verbose=True,
-        tedpca='mdl')
-
-
-def test_integration_three_echo_debug_cli_lowmem(skip_integration):
-    """ Integration test of the full tedana workflow using three-echo test data
-    """
-
-    if skip_integration:
-        pytest.skip('Skipping three-echo integration test')
-    out_dir = '/tmp/data/three-echo/TED.three-echo'
-    if os.path.exists(out_dir):
-        shutil.rmtree(out_dir)
-
-    # download data and run the test
-    download_test_data('https://osf.io/rqhfc/download',
-                       os.path.dirname(out_dir))
-
-    # Test re-running, but use the CLI
-    args = (['-d', '/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
-             '-e', '14.5', '38.5', '62.5',
-             '--tedpca', 'mdl',
-             '--out-dir', out_dir, '--debug', '--verbose', '--lowmem'])
-    tedana_cli._main(args)
-
+    with threadpool_limits(limits=1, user_api=None):
+        tedana_cli._main(args)
 
 def test_integration_three_echo_debug_workflow(skip_integration):
     """ Integration test of the full tedana workflow using three-echo test data
@@ -270,13 +225,14 @@ def test_integration_three_echo_debug_workflow(skip_integration):
     # download data and run the test
     download_test_data('https://osf.io/rqhfc/download',
                        os.path.dirname(out_dir))
-    tedana_cli.tedana_workflow(
-        data='/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
-        tes=[14.5, 38.5, 62.5],
-        out_dir=out_dir,
-        debug=True,
-        verbose=True,
-        tedpca='mdl')
+    with threadpool_limits(limits=1, user_api=None):
+        tedana_cli.tedana_workflow(
+            data='/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
+            tes=[14.5, 38.5, 62.5],
+            out_dir=out_dir2,
+            debug=True,
+            verbose=True,
+            tedpca='mdl')
 
 
 def test_integration_t2smap(skip_integration):
