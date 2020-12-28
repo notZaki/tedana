@@ -225,14 +225,13 @@ def test_integration_three_echo_debug_workflow(skip_integration):
     # download data and run the test
     download_test_data('https://osf.io/rqhfc/download',
                        os.path.dirname(out_dir))
-    with threadpool_limits(limits=1, user_api=None):
-        tedana_cli.tedana_workflow(
-            data='/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
-            tes=[14.5, 38.5, 62.5],
-            out_dir=out_dir2,
-            debug=True,
-            verbose=True,
-            tedpca='mdl')
+    tedana_cli.tedana_workflow(
+        data='/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
+        tes=[14.5, 38.5, 62.5],
+        out_dir=out_dir2,
+        debug=True,
+        verbose=True,
+        tedpca='mdl')
 
 
 def test_integration_t2smap(skip_integration):
