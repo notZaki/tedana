@@ -177,7 +177,7 @@ def ent_rate_sp(data, sm_window):
         parzen_w_1[(dims[0] - M[0] - 1):(dims[0] + M[0])] = _parzen_win(2 * M[0] + 1)
 
     # Apply windows to 3D
-    # TODO: replace correlate2d with 3d if possible
+    # TODO: replace correlate2d with 3d if possible --> fftconvolve(data, np.flip(data))
     data_corr = np.zeros((2 * dims[0] - 1, 2 * dims[1] - 1, 2 * dims[2] - 1))
     for m3 in range(dims[2] - 1):
         temp = np.zeros((2 * dims[0] - 1, 2 * dims[1] - 1))
@@ -487,6 +487,8 @@ def ma_pca(data_nib, mask_nib, criteria='mdl'):
     # Reordering of values
     EigenValues = EigenValues[::-1]
     dataN = np.dot(data, V[:, ::-1])
+    FV = V[:, ::-1]
+    dataN = data @ FV @ np.diag(1/np.sqrt(EigenValues)) @ FV.T
     # Potentially the small differences come from the different signs on V
 
     # Using 12 gaussian components from middle, top and bottom gaussian
