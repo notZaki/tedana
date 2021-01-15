@@ -377,6 +377,9 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
     RefLGR.setLevel(logging.INFO)
     RefLGR.addHandler(ref_handler)
 
+    LGR.info("Python version: {}".format(sys.version))
+    LGR.info("TEDANA location: {}".format(os.path.realpath(__file__)))
+
     LGR.info('Using output directory: {}'.format(out_dir))
 
     # ensure tes are in appropriate format
