@@ -486,7 +486,8 @@ def ma_pca(data_nib, mask_nib, criteria='mdl'):
 
     # Reordering of values
     EigenValues = EigenValues[::-1]
-    dataN = np.dot(data, V[:, ::-1])
+    dataN = data
+    # dataN = np.dot(data, V[:, ::-1])
     # FV = V[:, ::-1]
     # dataN = data @ FV @ np.diag(1/np.sqrt(EigenValues)) @ FV.T
     # Potentially the small differences come from the different signs on V
