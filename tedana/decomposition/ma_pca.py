@@ -605,7 +605,7 @@ def ma_pca(data_nib, mask_nib, criteria='mdl'):
     LGR.info('Estimated components is found out to be %d' % comp_est)
 
     # PCA with estimated number of components
-    ppca = PCA(n_components=comp_est, svd_solver='full', copy=False)
+    ppca = PCA(n_components=comp_est, whiten = True, svd_solver='full', copy=False)
     ppca.fit(data)
     v = ppca.components_.T
     s = ppca.explained_variance_
