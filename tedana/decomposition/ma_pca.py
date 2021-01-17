@@ -606,7 +606,7 @@ def ma_pca(data_nib, mask_nib, criteria='mdl'):
 
     mypca = PCA(n_components=comp_est, svd_solver='full', copy=True)
     mypca.fit(data)
-    myest = np.argmax(mypca.explained_variance_ratio_ < 0.01)
+    myest = np.argmax(mypca.explained_variance_ratio_ < 0.005)
     comp_est = np.min([comp_est, myest])
     LGR.info('Re-estimated components is found out to be %d' % comp_est)
 
