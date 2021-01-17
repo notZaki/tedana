@@ -7,6 +7,7 @@ import warnings
 import numpy as np
 from scipy import stats
 from sklearn.decomposition import FastICA
+from sklearn.preprocessing import StandardScaler
 
 LGR = logging.getLogger(__name__)
 RepLGR = logging.getLogger('REPORT')
@@ -52,7 +53,8 @@ def tedica(data, n_components, fixed_seed, maxit=500, maxrestart=10):
         fixed_seed = np.random.randint(low=1, high=1000)
 
     RepLGR.info("Starting seed for ICA Decomposition: {}".format(fixed_seed))
-
+    scaler = StandardScaler()
+    data = scaler.fit_transform(data.T).T
     for i_attempt in range(maxrestart):
         ica = FastICA(n_components=n_components, algorithm='parallel', whiten = True,
                       fun='logcosh', max_iter=maxit, random_state=fixed_seed)
