@@ -206,7 +206,7 @@ def test_integration_three_echo_debug_cli(skip_integration):
     # Test re-running, but use the CLI
     args = (['-d', '/tmp/data/three-echo/three_echo_Cornell_zcat.nii.gz',
              '-e', '14.5', '38.5', '62.5',
-             '--tedpca', 'kundu-stabilize',
+             '--tedpca', 'mdl',
              '--out-dir', out_dir, '--debug', '--verbose'])
     with threadpool_limits(limits=1, user_api=None):
         tedana_cli._main(args)
@@ -231,7 +231,7 @@ def test_integration_three_echo_debug_workflow(skip_integration):
         out_dir=out_dir2,
         debug=True,
         verbose=True,
-        tedpca='kundu-stabilize')
+        tedpca='mdl')
 
 
 def test_integration_t2smap(skip_integration):

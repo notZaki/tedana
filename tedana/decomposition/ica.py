@@ -54,7 +54,7 @@ def tedica(data, n_components, fixed_seed, maxit=500, maxrestart=10):
     RepLGR.info("Starting seed for ICA Decomposition: {}".format(fixed_seed))
 
     for i_attempt in range(maxrestart):
-        ica = FastICA(n_components=n_components, algorithm='parallel',
+        ica = FastICA(n_components=n_components, algorithm='parallel', whiten = True,
                       fun='logcosh', max_iter=maxit, random_state=fixed_seed)
 
         with warnings.catch_warnings(record=True) as w:
