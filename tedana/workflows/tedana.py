@@ -505,7 +505,7 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
                                                 out_dir=out_dir,
                                                 verbose=verbose,
                                                 low_mem=low_mem)
-        mmix_orig = decomposition.tedica(data_oc, n_components, fixed_seed,
+        mmix_orig = decomposition.tedica(dd, n_components, fixed_seed,
                                          maxit, maxrestart)
         RepLGR.info('Number of components identified: {}'.format(n_components))
         if verbose:

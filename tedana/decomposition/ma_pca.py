@@ -7,6 +7,7 @@ import numpy as np
 
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+from sklearn.utils.extmath import svd_flip
 
 from scipy.linalg import svd
 from scipy.signal import detrend, fftconvolve
@@ -612,11 +613,22 @@ def ma_pca(data_nib, mask_nib, criteria='mdl'):
     #     LGR.info('Re-estimated components is found out to be %d' % comp_est)
 
     # PCA with estimated number of components
-    ppca = PCA(n_components=comp_est, svd_solver='full', copy=False)
-    ppca.fit(data)
-    v = ppca.components_.T
-    s = ppca.explained_variance_
+    U, S, Vt = svd(data, full_matrices = False)
+    U, Vt = svd_flip(U, Vt)
+    components_ = Vt
+    # Get variance explained by singular values
+    explained_variance_ = (S ** 2) / (data.shape[0] - 1)
+    total_var = explained_variance_.sum()
+    varex_norm = explained_variance_ / total_var
+
+    components_ = components_[:comp_est]
+    explained_variance_ = explained_variance_[:comp_est]
+    varex_norm = varex_norm[:comp_est]
+    
+    # ppca = PCA(n_components=comp_est, svd_solver='full', copy=False)
+    # ppca.fit(data)
+    v = components_.T
+    s = explained_variance_
     u = np.dot(np.dot(data, v), np.diag(1. / s))
-    varex_norm = ppca.explained_variance_ratio_
 
     return u, s, varex_norm, v
