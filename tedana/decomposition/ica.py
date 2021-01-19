@@ -64,7 +64,7 @@ def tedica(data, n_components, fixed_seed, maxit=500, maxrestart=10):
             # convergence failures.
             warnings.simplefilter('always')
 
-            ica.fit(data)
+            mmix = ica.fit_transform(data.T)
 
             w = list(filter(lambda i: issubclass(i.category, UserWarning), w))
             if len(w):
@@ -78,7 +78,7 @@ def tedica(data, n_components, fixed_seed, maxit=500, maxrestart=10):
                          'iterations'.format(i_attempt + 1, ica.n_iter_))
                 break
 
-    mmix = ica.mixing_
+    # mmix = ica.mixing_
     mmix = stats.zscore(mmix, axis=0)
     RepLGR.info("Final seed for ICA Decomposition: {}".format(fixed_seed))
     return mmix
