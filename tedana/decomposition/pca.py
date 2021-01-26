@@ -258,4 +258,4 @@ def tedpca(data_cat, data_oc, combmode, mask, adaptive_mask, t2sG,
     # kept_data = stats.zscore(kept_data, axis=1)  # variance normalize time series
     # kept_data = stats.zscore(kept_data, axis=None)  # variance normalize everything
 
-    return kept_data, n_components
+    return data, n_components
