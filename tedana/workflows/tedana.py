@@ -20,7 +20,7 @@ from tedana import (decay, combine, decomposition, io, metrics,
                     reporting, selection, utils)
 import tedana.gscontrol as gsc
 from tedana.stats import computefeats2
-from tedana.workflows.parser_utils import is_valid_file, ContextFilter
+from tedana.workflows.parser_utils import is_valid_file, check_tedpca_value, ContextFilter
 
 def _get_parser():
     """
@@ -93,12 +93,15 @@ def _get_parser():
                           default='t2s')
     optional.add_argument('--tedpca',
                           dest='tedpca',
+                          type=check_tedpca_value,
                           help=('Method with which to select components in TEDPCA. '
                                 'PCA decomposition with the mdl, kic and aic options '
                                 'is based on a Moving Average (stationary Gaussian) '
-                                'process and are ordered from most to least aggresive. '
-                                'Default=\'mdl\'.'),
-                          choices=['kundu', 'kundu-stabilize', 'mdl', 'aic', 'kic'],
+                                'process and are ordered from most to least aggressive. '
+                                "Users may also provide a float from 0 to 1, "
+                                "in which case components will be selected based on the "
+                                "cumulative variance explained. "
+                                "Default='mdl'."),
                           default='mdl')
     optional.add_argument('--seed',
                           dest='fixed_seed',
@@ -257,8 +260,11 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
         Default is 'loglin'.
     combmode : {'t2s'}, optional
         Combination scheme for TEs: 't2s' (Posse 1999, default).
-    tedpca : {'kundu', 'kundu-stabilize', 'mdl', 'aic', 'kic'}, optional
-        Method with which to select components in TEDPCA. Default is 'mdl'.
+    tedpca : {'mdl', 'aic', 'kic', 'kundu', 'kundu-stabilize', float}, optional
+        Method with which to select components in TEDPCA.
+        If a float is provided, then it is assumed to represent percentage of variance
+        explained (0-1) to retain from PCA.
+        Default is 'mdl'.
     tedort : :obj:`bool`, optional
         Orthogonalize rejected components w.r.t. accepted ones prior to
         denoising. Default is False.
@@ -350,18 +356,17 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
     # Removing handlers after basicConfig doesn't work, so we use filters
     # for the relevant handlers themselves.
     log_handler.addFilter(ContextFilter())
+    logging.root.addHandler(log_handler)
     sh = logging.StreamHandler()
     sh.addFilter(ContextFilter())
+    logging.root.addHandler(sh)
 
     if quiet:
-        logging.basicConfig(level=logging.WARNING,
-                            handlers=[log_handler, sh])
+        logging.root.setLevel(logging.WARNING)
     elif debug:
-        logging.basicConfig(level=logging.DEBUG,
-                            handlers=[log_handler, sh])
+        logging.root.setLevel(logging.DEBUG)
     else:
-        logging.basicConfig(level=logging.INFO,
-                            handlers=[log_handler, sh])
+        logging.root.setLevel(logging.INFO)
 
     # Loggers for report and references
     rep_handler = logging.FileHandler(repname)
@@ -373,7 +378,7 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
     RefLGR = logging.getLogger('REFERENCES')
     RepLGR.setLevel(logging.INFO)
     RepLGR.addHandler(rep_handler)
-    RepLGR.setLevel(logging.INFO)
+    RefLGR.setLevel(logging.INFO)
     RefLGR.addHandler(ref_handler)
 
     LGR.info('Using output directory: {}'.format(out_dir))
@@ -385,6 +390,9 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
     # Coerce gscontrol to list
     if not isinstance(gscontrol, list):
         gscontrol = [gscontrol]
+
+    # Check value of tedpca *if* it is a float
+    tedpca = check_tedpca_value(tedpca, is_parser=False)
 
     LGR.info('Loading input data: {}'.format([f for f in data]))
     catd, ref_img = io.load_data(data, n_echos=n_echos)
@@ -669,16 +677,14 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
     with open(repname, 'w') as fo:
         fo.write(report)
 
-    for handle in LGR.handlers[:]:
-        handle.close()
-        LGR.removeHandler(handle)
-    for handle in RepLGR.handlers[:]:
-        handle.close()
-        RepLGR.removeHandler(handle)
-    for handle in RefLGR.handlers[:]:
-        handle.close()
-        RefLGR.removeHandler(handle)
-
+    log_handler.close()
+    logging.root.removeHandler(log_handler)
+    sh.close()
+    logging.root.removeHandler(sh)
+    for local_logger in (RefLGR, RepLGR):
+        for handler in local_logger.handlers[:]:
+            handler.close()
+            local_logger.removeHandler(handler)
     os.remove(refname)
 
 
