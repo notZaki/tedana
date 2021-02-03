@@ -515,6 +515,9 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
                                                 out_dir=out_dir,
                                                 verbose=verbose,
                                                 low_mem=low_mem)
+        mmix_orig = decomposition.tedica(dd, n_components, fixed_seed,
+                                         maxit, maxrestart)
+        RepLGR.info('Number of components identified: {}'.format(n_components))
         if verbose:
             io.filewrite(utils.unmask(dd, mask),
                          op.join(out_dir, 'ts_OC_whitened.nii.gz'), ref_img)
@@ -685,6 +688,11 @@ def tedana_workflow(data, tes, out_dir='.', mask=None,
                 "equal amplitude in plant sociology based on similarity of "
                 "species content and its application to analyses of the "
                 "vegetation on Danish commons. I kommission hos E. Munksgaard.")
+
+    naccepted = comptable[comptable.classification == 'accepted'].shape[0]
+    nrejected = comptable[comptable.classification == 'rejected'].shape[0]
+    nignored = comptable[comptable.classification == 'ignored'].shape[0]
+    RepLGR.info("ICA Decomposition summary: {} Accepted, {} Rejected, {} Ignored".format(naccepted, nrejected, nignored))
 
     with open(repname, 'r') as fo:
         report = [line.rstrip() for line in fo.readlines()]
