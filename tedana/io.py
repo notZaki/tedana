@@ -101,6 +101,7 @@ def set_convention(name: str) -> None:
     ------
     ValueError if the name is not valid
     """
+    global convention
     if name in allowed_conventions:
         convention = name
     elif name == 'bids':
